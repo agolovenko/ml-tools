@@ -1,9 +1,7 @@
 package examples.mlstanford.week3
 
-import java.io.File
-
 import breeze.linalg.DenseVector
-import util.IterativeLBFGSRegressor
+import regression.LogisticLBFGSRegressor
 
 import scala.io.Source
 
@@ -35,14 +33,14 @@ object Task2 {
   }
 
   def main(args: Array[String]): Unit = {
-    val f = new File(getClass.getResource("ex2data2.txt").getPath)
+    val f = getClass.getResource("ex2data2.txt").getPath
 
     val data = Source.fromFile(f).getLines()
       .map(parse).toSeq
 
     val fCount = data.head._1.length
 
-    val lr = new IterativeLBFGSRegressor(() => data.iterator, fCount, 0.1d, 50)
+    val lr = new LogisticLBFGSRegressor(data, fCount, 0.1d, 50)
 
     println("Final weights: " + lr.weights)
   }

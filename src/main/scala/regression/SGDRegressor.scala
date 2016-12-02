@@ -1,4 +1,4 @@
-package util
+package regression
 
 import breeze.linalg.DenseVector
 import breeze.numerics.sigmoid
@@ -7,10 +7,10 @@ import breeze.stats.distributions.Gaussian
 /**
   * Created by ashot.golovenko on 15/11/2016.
   */
-class SGDRegressor(val data: () => Iterator[(DenseVector[Double], Double)],
+abstract class SGDRegressor(val data: Iterable[(DenseVector[Double], Double)],
                    val featureCount: Int,
                    val learningRate: Double,
-                   val maxIterations: Int) extends LogisticRegressor {
+                   val maxIterations: Int) extends Regressor {
 
   override protected def learn: (DenseVector[Double], Seq[Double]) = {
     val normal = Gaussian(0, .01)
@@ -18,8 +18,9 @@ class SGDRegressor(val data: () => Iterator[(DenseVector[Double], Double)],
     weights(0) = 0.0
 
     val iterations = (1 to maxIterations).map { i =>
-      val cost = data().map {case (x, y) =>
+      val cost = data.map {case (x, y) =>
         val p = sigmoid(x dot weights)
+
         val error = y - p
 
         val gradient = x.map(error * _)

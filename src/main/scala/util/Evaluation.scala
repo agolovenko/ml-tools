@@ -1,12 +1,13 @@
 package util
 
 import breeze.linalg.{DenseMatrix, DenseVector, sum}
+import regression.Regressor
 
 /**
   * Created by ashot.golovenko on 18/11/2016.
   */
 object Evaluation {
-  def confusion(lr: LogisticRegressor, data: () => Iterator[(DenseVector[Double], Double)]): DenseMatrix[Double] = {
+  def confusion(lr: Regressor, data: () => Iterator[(DenseVector[Double], Double)]): DenseMatrix[Double] = {
     val confusion = DenseMatrix.zeros[Double](2, 2)
 
     data().map { case (x, y) =>
