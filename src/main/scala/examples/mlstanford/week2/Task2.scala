@@ -1,8 +1,9 @@
 package examples.mlstanford.week2
 
 import breeze.linalg.DenseVector
-import regression.LinearLBFGSRegressor
-import util.{SetStats, Transformations}
+import regression.{LinearGDRegressor, LinearLBFGSRegressor}
+import util.SetStats
+import util.Transformations.{minMax, zScore}
 
 import scala.io.Source
 
@@ -21,17 +22,26 @@ object Task2 {
   def main(args: Array[String]): Unit = {
     val f = getClass.getResource("ex1data2.txt").getPath
 
-    val data = Source.fromFile(f).getLines()
-      .map(parse).toList
+    val data = Source.fromFile(f).getLines().map(parse).toSeq
 
     val fCount = data.head._1.length
-    val stats = new SetStats(data.map(_._1), fCount)
+    val stats = SetStats(data.map(_._1), fCount)
 
-    val normalized = data.map { case (x, y) => (Transformations.minMax(stats.med, stats.halfRange)(x), y) }
+    def norm: (DenseVector[Double]) => DenseVector[Double] = zScore(stats.meanForZScore, stats.stddevForZScore)
+//    def norm: (DenseVector[Double]) => DenseVector[Double] = identity[DenseVector[Double]]
 
-    val lr = new LinearLBFGSRegressor(normalized, fCount, 0.0d, 50)
+    val normalized = data.map { case (x, y) => (norm(x), y)}
 
+    //Get the default cost
+//    val dummy = new LinearGDRegressor(data, fCount, 0.0d, 1, 0.01)
+//    println("Default avg cost: " + dummy.iterations.head)
+
+    val lr = new LinearGDRegressor(normalized, fCount, 0.0d, 1500, 0.01)
+//    val lr = new LinearLBFGSRegressor(normalized, fCount, 0.0d, 50)
+
+    println("Finished in: " + lr.iterations.size + " iterations. History: " + lr.iterations)
     println("Final weights: " + lr.weights)
-    println("Iterations: " + lr.iterations)
+
+    println("Price for 1650sqm 3br house: " + lr.predict(norm(DenseVector(1.0d, 1650.0d, 3d))))
   }
 }

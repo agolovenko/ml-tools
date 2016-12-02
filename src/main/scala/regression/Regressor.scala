@@ -13,6 +13,12 @@ trait Regressor {
 
   def iterations: Seq[Double] = weightsWithIterations._2
 
+  protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double
+
+  protected def costOfPrediction(h: Double, y: Double): Double
+
+  protected def learn: (DenseVector[Double], Seq[Double])
+
   def predict(x: DenseVector[Double]): Double = {
     predict(x, weights)
   }
@@ -21,30 +27,34 @@ trait Regressor {
     costOfPrediction(predict(x), y)
   }
 
-  protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double
-
-  protected def costOfPrediction(h: Double, y: Double): Double
-
-  protected def learn: (DenseVector[Double], Seq[Double])
+  def meanCost(data: Iterable[(DenseVector[Double], Double)]): Double = {
+    var cost = 0.0d
+    var total = 0L
+    data.foreach { case (x, y) =>
+      total += 1
+      cost += costOfPrediction(predict(x), y)
+    }
+    cost / total
+  }
 }
 
-trait LinearRegressor extends Regressor {
-  override protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double = {
+trait LinearLike {
+  protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double = {
     x dot weights
   }
 
-  override protected def costOfPrediction(h: Double, y: Double): Double = {
+  protected def costOfPrediction(h: Double, y: Double): Double = {
     val error = h - y
     error * error / 2
   }
 }
 
-trait LogisticRegressor extends Regressor {
-  override protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double = {
+trait LogisticLike {
+  protected def predict(x: DenseVector[Double], weights: DenseVector[Double]): Double = {
     sigmoid(x dot weights)
   }
 
-  override protected def costOfPrediction(h: Double, y: Double): Double = {
+  protected def costOfPrediction(h: Double, y: Double): Double = {
     -y * log(h) - (1.0 - y) * log(1.0 - h)
   }
 }

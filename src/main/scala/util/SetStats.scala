@@ -2,7 +2,7 @@ package util
 
 import breeze.linalg.DenseVector
 
-class SetStats(val data: Iterable[DenseVector[Double]], val featureCount: Int) {
+class SetStats private (val data: Iterable[DenseVector[Double]], val featureCount: Int) {
   private val stats = learnStats()
 
   val count: Long = stats._1
@@ -42,9 +42,10 @@ class SetStats(val data: Iterable[DenseVector[Double]], val featureCount: Int) {
 
     data.foreach { v =>
       count += 1
+      if (count % 1000000 == 0) println(s"${count/1000000}M rows processed...")
       for (i <- 0 until featureCount) {
 
-        //Welford algo
+        //Welford algorythm
         val d = v(i) - mean(i)
         mean(i) += d / count
         stddev(i) += d * (v(i) - mean(i))
@@ -54,6 +55,8 @@ class SetStats(val data: Iterable[DenseVector[Double]], val featureCount: Int) {
       }
     }
 
+    println("Finished...")
+
     (
       count,
       mean,
@@ -62,4 +65,8 @@ class SetStats(val data: Iterable[DenseVector[Double]], val featureCount: Int) {
       max
     )
   }
+}
+
+object SetStats {
+  def apply(data: Iterable[DenseVector[Double]], featureCount: Int): SetStats = new SetStats(data, featureCount)
 }

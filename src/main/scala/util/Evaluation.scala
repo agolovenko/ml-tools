@@ -7,10 +7,10 @@ import regression.Regressor
   * Created by ashot.golovenko on 18/11/2016.
   */
 object Evaluation {
-  def confusion(lr: Regressor, data: () => Iterator[(DenseVector[Double], Double)]): DenseMatrix[Double] = {
+  def confusion(lr: Regressor, data: Iterable[(DenseVector[Double], Double)]): DenseMatrix[Double] = {
     val confusion = DenseMatrix.zeros[Double](2, 2)
 
-    data().map { case (x, y) =>
+    data.map { case (x, y) =>
       (y.toInt, if (lr.predict(x) > 0.5) 1 else 0)
     } foreach { case (truth, predicted) =>
       confusion(truth, predicted) += 1.0

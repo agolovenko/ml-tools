@@ -2,6 +2,7 @@ package examples.mlstanford.week3
 
 import breeze.linalg.DenseVector
 import regression.LogisticLBFGSRegressor
+import util.Evaluation.{confusion, printConfusionMtx}
 
 import scala.io.Source
 
@@ -28,7 +29,10 @@ object Task1 {
     val lr = new LogisticLBFGSRegressor(data, fCount, 0.0d, 50)
 
     println("Final weights: " + lr.weights)
-    println("Student with grades 45 and 85 has chances: " + lr.predict(DenseVector(1.0d, 45.0d, 85.0d)))
+
+    printConfusionMtx(confusion(lr, data))
+
+    println("\nStudent with grades 45 and 85 has chances: " + lr.predict(DenseVector(1.0d, 45.0d, 85.0d)))
   }
 }
 

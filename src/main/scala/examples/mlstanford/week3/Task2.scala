@@ -2,6 +2,8 @@ package examples.mlstanford.week3
 
 import breeze.linalg.DenseVector
 import regression.LogisticLBFGSRegressor
+import util.Evaluation
+import util.Evaluation.{confusion, printConfusionMtx}
 
 import scala.io.Source
 
@@ -40,8 +42,10 @@ object Task2 {
 
     val fCount = data.head._1.length
 
-    val lr = new LogisticLBFGSRegressor(data, fCount, 0.1d, 50)
+    val lr = new LogisticLBFGSRegressor(data, fCount, 1d, 50)
 
     println("Final weights: " + lr.weights)
+
+    printConfusionMtx(confusion(lr, data))
   }
 }
